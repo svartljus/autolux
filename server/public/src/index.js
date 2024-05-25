@@ -16,6 +16,8 @@ let ledpositions = [];
 let ledbuffer = [];
 let ledcount = 0;
 
+let useMic = true;
+
 let ledspersecondmaxspeed = 20.0;
 let segmentlengthledmultiplier = 2.0;
 
@@ -224,8 +226,38 @@ function connectWs() {
   });
 }
 
+let characteristic;
+
 function valueChanged(e) {
-  console.log("characteristics value changed", e);
+  const value = event.target.value;
+  const b0 = value.getUint8(0);
+  const b1 = value.getUint8(1);
+
+  const level = b1 * 256 + b0;
+  console.log("characteristics value changed", e, b0, b1, level);
+
+  useMic = false;
+
+  let lev = Math.max(0, Math.floor(level / 8) - 5);
+  if (lev != playerthrottleelement[2].value) {
+    playerthrottleelement[2].value = lev;
+    const data = {
+      type: "input",
+      player: 2,
+      throttle: playerthrottleelement[2].value,
+    };
+
+    conn.send(JSON.stringify(data));
+  }
+
+  // co
+  // nst data = {
+  //   type: "input",
+  //   player: 2,
+  //   throttle: level / 50,
+  // };
+
+  // conn.send(JSON.stringify(data));
 }
 
 function connectBle() {
@@ -254,12 +286,11 @@ function connectBle() {
     })
     .then((char) => {
       console.log("got char", char);
-      char[0].startNotifications().then((char) => {
-        characteristic.addEventListener(
-          "characteristicvaluechanged",
-          valueChanged
-        );
-      });
+      characteristic = char;
+      return char.startNotifications();
+    })
+    .then((char2) => {
+      char2.addEventListener("characteristicvaluechanged", valueChanged);
     });
 }
 
@@ -471,15 +502,18 @@ function init() {
         // console.log(Math.round(average));
         // colorPids(average);
 
-        let lev = Math.max(0, Math.floor(average * 3) - 70);
-        if (lev != playerthrottleelement[2].value) {
-          playerthrottleelement[2].value = lev;
-          const data = {
-            type: "input",
-            player: 2,
-            throttle: playerthrottleelement[2].value,
-          };
-          conn.send(JSON.stringify(data));
+        if (useMic) {
+          let lev = Math.max(0, Math.floor(average * 3) - 70);
+          if (lev != playerthrottleelement[2].value) {
+            playerthrottleelement[2].value = lev;
+            const data = {
+              type: "input",
+              player: 2,
+              throttle: playerthrottleelement[2].value,
+            };
+
+            conn.send(JSON.stringify(data));
+          }
         }
       };
     })

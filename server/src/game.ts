@@ -6,7 +6,7 @@ let ledpositions = [];
 let ledcount = 0;
 let MAX_SPEED_METERS_PER_SECOND = 0.66;
 let LED_PIXELS_PER_METER = 60.0;
-let OVERDRIVE_METERS_PER_SECOND = 0.33;
+let OVERDRIVE_METERS_PER_SECOND = 1.33;
 
 let LEDS_PER_SECOND_MAXSPEED =
   MAX_SPEED_METERS_PER_SECOND * LED_PIXELS_PER_METER;
@@ -66,7 +66,7 @@ function addMulColors(rgb1, rgb2, mul) {
 
 function stepGame(deltaTime) {
   const velfadeadd = 1.66 * deltaTime;
-  const velfadesub = 0.5 * deltaTime;
+  const velfadesub = 1.5 * deltaTime;
   const ovrfadeadd = 0.1 * deltaTime;
   const ovrfadesub = 1.0 * deltaTime;
   const maxvel = LEDS_PER_SECOND_MAXSPEED * deltaTime;
