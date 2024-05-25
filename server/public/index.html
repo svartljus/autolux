@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <div class="ui">
+        <ul class="inputgroups">
+            <li>
+                <h3>Game</h3>
+                <ul>
+                  <li>
+                    <button id="restartgame">RESTART GAME</button>
+                    <button id="stopgame">STOP GAME</button>
+                    <button id="startdemo">START DEMO</button>
+                  </li>
+                  <li>
+                    
+                  </li>
+                </ul>
+            </li>
+            <li>
+                <h3>Player 1 (red)</h3>
+                <ul>
+                  <li>
+                    Throttle <input id="throttle1" type="range" min="0" max="100" />
+                  </li>
+                  <li>
+                    Position <span id="position1">???</span>
+                    Velocity <span id="velocity1">???</span>
+                    <button id="reset1">RESET</button>
+                  </li>
+                </ul>
+            </li>
+            <li>
+                <h3>Player 2 (green)</h3>
+                <ul>
+                  <li>
+                    Throttle <input id="throttle2" type="range" min="0" max="100" />
+                  </li>
+                  <li>
+                    Position <span id="position2">???</span>
+                    Velocity <span id="velocity2">???</span>
+                    <button id="reset2">RESET</button>
+                  </li>
+                </ul>
+            </li>
+            <li>
+                <h3>Player 3 (blue)</h3>
+                <ul>
+                  <li>
+                    Throttle <input id="throttle3" type="range" min="0" max="100" />
+                  </li>
+                  <li>
+                    Position <span id="position3">???</span>
+                    Velocity <span id="velocity3">???</span>
+                    <button id="reset3">RESET</button>
+                  </li>
+                </ul>
+            </li>
+        </ul>
+      </div>
+      <div class="preview">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+    <script type="module" src="src/index.js"></script>
+  </body>
+</html>
