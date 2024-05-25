@@ -21,9 +21,9 @@ let segmentlengthledmultiplier = 2.0;
 
 let gamestate = {
   players: [
-    { index: 0, throttle: 0, position: 0, velocity: 0 },
-    { index: 1, throttle: 0, position: 0, velocity: 0 },
-    { index: 2, throttle: 0, position: 0, velocity: 0 },
+    { index: 0, throttle: 0, position: 0, velocity: 0, lastposition: 0 },
+    { index: 1, throttle: 0, position: 0, velocity: 0, lastposition: 0 },
+    { index: 2, throttle: 0, position: 0, velocity: 0, lastposition: 0 },
   ],
   demoloop: true,
   demotimer: 0,
@@ -75,8 +75,8 @@ function renderFrame() {
     ledbuffer[l] = "#000";
   }
   for (const z of level.zones) {
-    let sp = Math.round((z.startPercent * ledcount) / 100);
-    let ep = Math.round(((z.startPercent + z.lengthPercent) * ledcount) / 100);
+    let sp = z.startPixel; // Math.round((z.startPercent * ledcount) / 100);
+    let ep = z.endPixel; // Math.round(((z.startPercent + z.lengthPercent) * ledcount) / 100);
     for (let l = sp; l < ep; l++) {
       if (z.type === "curve") {
         ledbuffer[l] = "#444";
@@ -160,7 +160,112 @@ function startDemo() {
   resetPlayer(2);
 }
 
+let conn;
+let synth;
+let osc1;
+let osc2;
+let osc3;
+
+function connectWs() {
+  conn = new WebSocket(`ws://${location.host}/socket`);
+
+  conn.addEventListener("close", () => {
+    setTimeout(connectWs, 1000);
+  });
+
+  conn.addEventListener("message", (m) => {
+    const data = JSON.parse(m.data);
+    if (data) {
+      if (data.type === "enter-zone") {
+        console.log("enter zone event", data);
+        if (data.zone === "goal") {
+          if (synth) {
+            const now = Tone.now();
+            synth.triggerAttackRelease("E4", "8n", now);
+          }
+        }
+      } else if (data.type === "leave-zone") {
+        console.log("leave zone event", data);
+      } else if (data.type === "sound") {
+        if (synth) {
+          const now = Tone.now();
+          synth.triggerAttackRelease("E4", "8n", now);
+        }
+      } else if (data.type === "player-update") {
+        if (osc1) {
+          osc1.volume.value = Math.max(
+            -24,
+            Math.min(1.0, -24.0 + data.players[0].totalvelocity * 30)
+          );
+          osc1.frequency.value = 100 + data.players[0].totalvelocity * 300;
+        }
+
+        if (osc2) {
+          osc2.volume.value = Math.max(
+            -24,
+            Math.min(1.0, -24.0 + data.players[1].totalvelocity * 30)
+          );
+
+          osc2.frequency.value = 100 + data.players[1].totalvelocity * 300;
+        }
+
+        if (osc3) {
+          osc3.volume.value = Math.max(
+            -24,
+            Math.min(1.0, -24.0 + data.players[2].totalvelocity * 30)
+          );
+
+          osc3.frequency.value = 100 + data.players[2].totalvelocity * 300;
+        }
+      } else {
+        console.log("Unhandled message", data);
+      }
+    }
+  });
+}
+
+function valueChanged(e) {
+  console.log("characteristics value changed", e);
+}
+
+function connectBle() {
+  return navigator.bluetooth
+    .requestDevice({
+      // acceptAllDevices: true,
+      filters: [
+        {
+          services: [0x9999],
+        },
+      ],
+    })
+    .then((device) => {
+      console.log("got device", device);
+      // this.device = device;
+      return device.gatt.connect();
+    })
+    .then((server) => {
+      console.log("got server", server);
+      // this.server = server;
+      return server.getPrimaryService(0x9999);
+    })
+    .then((service) => {
+      console.log("got service", service);
+      return service.getCharacteristic(0x8888);
+    })
+    .then((char) => {
+      console.log("got char", char);
+      char[0].startNotifications().then((char) => {
+        characteristic.addEventListener(
+          "characteristicvaluechanged",
+          valueChanged
+        );
+      });
+    });
+}
+
 function init() {
+  connectWs();
+
   level = LEVEL;
 
   let offset = 0;
@@ -185,6 +290,13 @@ function init() {
     }
 
     offset += len;
+  }
+  for (const z of level.zones) {
+    z.startPixel = Math.round((z.startPercent * ledcount) / 100);
+
+    z.endPixel = Math.round(
+      ((z.startPercent + z.lengthPercent) * ledcount) / 100
+    );
   }
   ledcount = offset;
   console.log("total leds", ledcount);
@@ -231,6 +343,9 @@ function init() {
   document
     .getElementById("startdemo")
     .addEventListener("click", () => startDemo());
+  document
+    .getElementById("connectble")
+    .addEventListener("click", () => connectBle());
 
   //   startDemo();
   restartGame();
@@ -240,6 +355,154 @@ function init() {
   resetPlayer(2);
 
   renderFrame();
+
+  playerthrottleelement[0].addEventListener("input", (e) => {
+    console.log("slider 1 changed", e);
+
+    const data = {
+      type: "input",
+      player: 0,
+      throttle: playerthrottleelement[0].value,
+    };
+    conn.send(JSON.stringify(data));
+  });
+
+  playerthrottleelement[1].addEventListener("input", (e) => {
+    console.log("slider 2 changed", e);
+
+    const data = {
+      type: "input",
+      player: 1,
+      throttle: playerthrottleelement[1].value,
+    };
+    conn.send(JSON.stringify(data));
+  });
+
+  playerthrottleelement[2].addEventListener("input", (e) => {
+    console.log("slider 3 changed", e);
+
+    const data = {
+      type: "input",
+      player: 2,
+      throttle: playerthrottleelement[2].value,
+    };
+    conn.send(JSON.stringify(data));
+  });
+
+  window.addEventListener("gamepadconnected", (event) => {
+    console.log("A gamepad connected:");
+    console.log(event.gamepad);
+
+    event.gamepad.addEventListener("");
+  });
+
+  window.addEventListener("gamepaddisconnected", (event) => {
+    console.log("A gamepad disconnected:");
+    console.log(event.gamepad);
+  });
+
+  setInterval(() => {
+    var gamepads = navigator.getGamepads();
+
+    var idx = 0;
+    for (const g of gamepads) {
+      if (!g) {
+        continue;
+      }
+
+      // console.log(
+      //   "gp",
+      //   g,
+      //   g.buttons.map((b) => b.value)
+      // );
+
+      if (idx === 0) {
+        let lev = Math.floor(g.buttons[6].value * 100);
+        if (lev != playerthrottleelement[0].value) {
+          playerthrottleelement[0].value = lev;
+          const data = {
+            type: "input",
+            player: 0,
+            throttle: playerthrottleelement[0].value,
+          };
+          conn.send(JSON.stringify(data));
+        }
+      }
+
+      if (idx === 1) {
+        let lev = Math.floor(g.buttons[7].value * 100);
+        if (lev != playerthrottleelement[1].value) {
+          playerthrottleelement[1].value = lev;
+          const data = {
+            type: "input",
+            player: 1,
+            throttle: playerthrottleelement[1].value,
+          };
+          conn.send(JSON.stringify(data));
+        }
+      }
+
+      idx++;
+    }
+  }, 20);
+
+  navigator.mediaDevices
+    .getUserMedia({
+      audio: true,
+      video: true,
+    })
+    .then(function (stream) {
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const microphone = audioContext.createMediaStreamSource(stream);
+      const scriptProcessor = audioContext.createScriptProcessor(512, 1, 1);
+
+      analyser.smoothingTimeConstant = 0.8;
+      analyser.fftSize = 1024;
+
+      microphone.connect(analyser);
+      analyser.connect(scriptProcessor);
+      scriptProcessor.connect(audioContext.destination);
+      scriptProcessor.onaudioprocess = function () {
+        const array = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(array);
+        const arraySum = array.reduce((a, value) => Math.max(a, value), 0);
+        const average = arraySum / 3;
+        // console.log(Math.round(average));
+        // colorPids(average);
+
+        let lev = Math.max(0, Math.floor(average * 3) - 70);
+        if (lev != playerthrottleelement[2].value) {
+          playerthrottleelement[2].value = lev;
+          const data = {
+            type: "input",
+            player: 2,
+            throttle: playerthrottleelement[2].value,
+          };
+          conn.send(JSON.stringify(data));
+        }
+      };
+    })
+    .catch(function (err) {
+      /* handle the error */
+      console.error(err);
+    });
+
+  document.addEventListener("click", async () => {
+    await Tone.start();
+    console.log("audio is ready");
+
+    synth = new Tone.Synth().toDestination();
+
+    osc1 = new Tone.Oscillator(101, "sine").toDestination().start();
+    osc1.volume.value = 0.5;
+
+    osc2 = new Tone.Oscillator(102, "sine").toDestination().start();
+    osc2.volume.value = 0.5;
+
+    osc3 = new Tone.Oscillator(103, "sine").toDestination().start();
+    osc3.volume.value = 0.5;
+  });
 }
 
 window.addEventListener("load", init);
