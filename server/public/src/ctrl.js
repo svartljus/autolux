@@ -1,6 +1,6 @@
 import { LEVEL } from "./config.js";
 
-console.log("hej index");
+console.log("hej ctrl");
 
 let level;
 
