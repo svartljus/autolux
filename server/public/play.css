@@ -131,6 +131,26 @@ div.heatmeter .bar .fill {
   background-color: #f00;
 }
 
+div.heatmeter.overheating {
+  color: #f66;
+  animation-name: blonkiblonk;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-duration: 0.5s;
+}
+
+@keyframes blonkiblonk {
+  0% {
+    opacity: 0.0;
+  }
+  50% {
+    opacity: 1.0;
+  }
+  100% {
+    opacity: 0.0;
+  }
+}
+
 div.position .bar .marker {
   position: absolute;
   background-color: #777;
@@ -158,14 +178,17 @@ pre#debug {
 #fullscreenmodal {
   position: absolute;
   left: 0;
-  top: 0;
+  bottom: 0;
+  padding: 10px;
+  z-index: 2;
+  background-color: rgba(0,0,0,0.66);
 }
 
 #fullscreenmodal.hidden {
   display: none;
 }
 
-#fullscreenmodal #fullscreenbutton {
+#fullscreenmodal button {
   padding: 10px;
   width: 100px;
 }

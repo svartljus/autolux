@@ -14,7 +14,7 @@ import {
 const app = express();
 const expressWs = expressWsModule(app);
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
 export function broadcast(payload) {
   // console.log("broadcast", JSON.stringify(payload));
@@ -50,18 +50,20 @@ export function initWeb() {
           })
         );
       } else if (data.type === "player-hello") {
-        console.log("got hello from player", data);
         const index = touchPlayer(data.id);
-        const state = getPlayerState(data.id)
+        console.log("got hello from player", data, index);
+        const state = getPlayerState(data.id);
         ws.send(
           JSON.stringify({
-            type: "player-index",
+            type: "player-info",
             id: data.id,
-            index,
+            index: state.index,
+            count: getNumberOfPlayers(),
             state,
           })
         );
       } else if (data.type === "input") {
+        console.log("got player input", data);
         // setPlayerInput(data.player, data.throttle, data.brake);
         if (data.throttle !== undefined) {
           setPlayerThrottle(data.player, data.throttle);
@@ -94,6 +96,6 @@ export function initWeb() {
     console.log("socket connected");
   });
 
-  console.log('Listening on port', PORT);
-  app.listen(PORT, '0.0.0.0');
+  console.log("Listening on port", PORT);
+  app.listen(PORT, "0.0.0.0");
 }

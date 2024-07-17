@@ -22,6 +22,7 @@ let boostEnabled = false;
 let lastGamestate = {};
 let currentSpeed = 0;
 let targetSpeed = 0;
+let overheating = false;
 let currentPosition = 1;
 let otherPositions = [];
 let playerPositionMarkers = {};
@@ -86,25 +87,34 @@ function connectWs() {
           })
         );
         location = `#${myId}`;
-      } else if (data.type === "player-index") {
-        console.log("got player index", data);
+      } else if (data.type === "player-info") {
+        console.log("got player info", data);
         if (data.id === myId) {
           document.getElementById("playerindex").textContent =
             data.index.toString();
 
           const color = hexColorFromArray(data.state.color);
           document.getElementById("colorsample").style.backgroundColor = color;
+
+          totalPlayerCount = data.count ?? 0;
+          document.getElementById("playercount").textContent =
+            totalPlayerCount.toString();
         }
-      } else if (data.type === "player-count") {
-        console.log("got player count", data);
-        document.getElementById("playercount").textContent =
-          data.players.toString();
+        // } else if (data.type === "player-count") {
+        //   console.log("got player count", data);
+        //   totalPlayerCount = data.players.length ?? 0;
+        //   document.getElementById("playercount").textContent =
+        //     totalPlayerCount.toString();
       } else if (data.type === "enter-zone") {
         console.log("enter zone event", data);
         if (data.zone === "checkpoint") {
           if (synth) {
             const now = Tone.now();
-            synth.triggerAttackRelease(data.zonedata?.note || "E4", "256n", now);
+            synth.triggerAttackRelease(
+              data.zonedata?.note || "E4",
+              "256n",
+              now
+            );
           }
         }
         if (data.zone === "goal") {
@@ -121,12 +131,53 @@ function connectWs() {
         //   synth.triggerAttackRelease("E4", "8n", now);
         // }
       } else if (data.type === "gamestate") {
-        lastGamestate = data.gamestate;
+        // lastGamestate = data.gamestate;
+        // trackLength = lastGamestate.tracklength;
+        // document.getElementById("playercount").textContent =
+        //   lastGamestate.players.length.toString();
+        // // document.getElementById("debug").textContent = JSON.stringify(
+        // //   lastGamestate,
+        // //   null,
+        // //   2
+        // // );
+        // const otherpos = [];
+        // lastGamestate.players.forEach((p) => {
+        //   if (p.id === myId) {
+        //     targetSpeed = p.velocity;
+        //     targetHeat = p.heat;
+        //     currentPosition = p.position;
+        //     overheating = p.overheating;
+        //   } else {
+        //     otherpos.push(p.position);
+        //   }
+        // });
+        // otherPositions = otherpos;
+        // const el3 = document.getElementById("positionmarkers");
+        // el3.innerHTML = "";
+        // const positions = {};
+        // lastGamestate.players.forEach((p) => {
+        //   const el4 = document.createElement("div");
+        //   // <div class="marker" id="positionmarker"></div>;
+        //   el4.classList.add("marker");
+        //   if (p.id === myId) {
+        //     el4.classList.add("you");
+        //   }
+        //   positions[p.id] = el4;
+        //   el4.style.left = `${Math.round((p.position * 100) / trackLength)}%`;
+        //   el3.appendChild(el4);
+        // });
+        // playerPositionMarkers = positions;
+        // console.log("playerPositionMarkers", playerPositionMarkers);
+      } else if (data.type === "player-update") {
+        // lastGamestate = data.gamestate;
 
-        trackLength = lastGamestate.tracklength;
+        trackLength = data.tracklength;
 
-        document.getElementById("playercount").textContent =
-          lastGamestate.players.length.toString();
+        if (data.players.length !== totalPlayerCount) {
+          totalPlayerCount = data.players.length ?? 0;
+          document.getElementById("playercount").textContent =
+            totalPlayerCount.toString();
+        }
 
         // document.getElementById("debug").textContent = JSON.stringify(
         //   lastGamestate,
@@ -135,11 +186,19 @@ function connectWs() {
         // );
 
         const otherpos = [];
-        lastGamestate.players.forEach((p) => {
+        data.players.forEach((p) => {
           if (p.id === myId) {
             targetSpeed = p.velocity;
             targetHeat = p.heat;
             currentPosition = p.position;
+            overheating = p.overheating;
+
+            if (p.index !== myIndex) {
+              myIndex = p.index;
+
+              document.getElementById("playerindex").textContent =
+                myIndex.toString();
+            }
           } else {
             otherpos.push(p.position);
           }
@@ -151,7 +210,7 @@ function connectWs() {
         el3.innerHTML = "";
 
         const positions = {};
-        lastGamestate.players.forEach((p) => {
+        data.players.forEach((p) => {
           const el4 = document.createElement("div");
           // <div class="marker" id="positionmarker"></div>;
           el4.classList.add("marker");
@@ -163,9 +222,16 @@ function connectWs() {
           el3.appendChild(el4);
         });
         playerPositionMarkers = positions;
-        // console.log("playerPositionMarkers", playerPositionMarkers);
-      } else if (data.type === "player-update") {
-        console.log("player update", data);
+
+        data.players.forEach((pl) => {
+          const el = playerPositionMarkers[pl.id];
+          if (el) {
+            el.style.left = `${Math.round((pl.position * 100) / trackLength)}%`;
+          }
+        });
+      } else if (data.type === "artnet") {
+      } else if (data.type === "map") {
+        // console.log("player update", data);
         // if (osc1) {
         //   osc1.volume.value = Math.max(
         //     -24,
@@ -623,7 +689,7 @@ function init() {
     );
     const delta = Date.now() - lastSend;
     if (throttle !== lastThrottlePercent || delta > 10000) {
-      console.log("send throttle", throttleDown, throttle);
+      console.log("send throttle", myId, throttleDown, throttle);
       const data = {
         player: myId,
         type: "input",
@@ -698,13 +764,18 @@ function init() {
       currentHeat * 100
     )}%`;
 
-    if (lastGamestate.players) {
-      lastGamestate.players.forEach((pl) => {
-        const el = playerPositionMarkers[pl.id];
-        if (el) {
-          el.style.left = `${Math.round((pl.position * 100) / trackLength)}%`;
-        }
-      });
+    if (overheating) {
+      if (
+        !document.getElementById("heatmeter").classList.contains("overheating")
+      ) {
+        document.getElementById("heatmeter").classList.add("overheating");
+      }
+    } else {
+      if (
+        document.getElementById("heatmeter").classList.contains("overheating")
+      ) {
+        document.getElementById("heatmeter").classList.remove("overheating");
+      }
     }
 
     // document.getElementById("positionmarker").style.left = `${Math.round(

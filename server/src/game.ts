@@ -112,6 +112,8 @@ function stepGame(deltaTime) {
     const overheatmul = pl.overheating ? 0.25 : 1.0;
     let zonemul = 1.0;
 
+    pl.index = p;
+
     pl.zones = [];
     for (const z of level.zones) {
       if (pl.position >= z.startPixel && pl.position < z.endPixel) {
@@ -527,20 +529,24 @@ export function initGame() {
     broadcast(update2);
   }, 500);
 
-  setInterval(() => {
-    const update2 = {
-      type: "gamestate",
-      gamestate,
-    };
+  // setInterval(() => {
+  //   const update2 = {
+  //     type: "gamestate",
+  //     gamestate,
+  //   };
 
-    broadcast(update2);
-  }, 100);
+  //   broadcast(update2);
+  // }, 100);
 
   setInterval(() => {
     // purge idle players
     gamestate.players = gamestate.players.filter((pl) => {
       const inactivity = Date.now() - pl.lastseen;
-      return inactivity < 15000;
+      const purge = inactivity > 15000
+      if (purge) {
+        console.log('Purging inactive player', pl.id, inactivity)
+      }
+      return !purge;
     });
   }, 1000);
 
@@ -560,8 +566,11 @@ export function initGame() {
     // const osc = new Tone.Oscillator(440, "sine").toDestination().start();
     const update = {
       type: "player-update",
+      tracklength: ledcount,
       players: gamestate.players.map((p) => {
         return {
+          id: p.id,
+          index: p.index,
           position: p.position,
           velocity: p.velocity * MAX_SPEED_METERS_PER_SECOND,
           overdrive: p.overdrive * OVERDRIVE_METERS_PER_SECOND,
@@ -579,5 +588,5 @@ export function initGame() {
       overheatblink3: gamestate.overheatblink3,
     };
     broadcast(update);
-  }, 80);
+  }, 100);
 }
