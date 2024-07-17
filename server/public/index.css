@@ -1,9 +1,31 @@
-body {
-    background-color: #111;
-    color: #eee;
+
+ul.menu {
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 300px;
 }
 
-canvas#canvas {
-    width: 700px;
-    height: 500px;
+ul.menu li {
+    display: block;
+    margin: 0 0 10px 0;
+    padding: 0;
 }
+
+ul.menu li a {
+    display: block;
+}
+
+ul.menu li a span {
+    display: block;
+    padding: 40px 10px;
+    background-color: #ccc;
+    color:#000;
+    border-radius: 10px;
+}
+
+ul.menu li a:hover span {
+    background-color: #fff;
+}
+

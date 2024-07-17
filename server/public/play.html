@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="common.css" />
+    <link rel="stylesheet" href="play.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div id="fullscreenmodal">
+      <p>
+        Go fullscreen?
+      </p>
+      <button id="gofullscreen">
+        Yes
+      </button>
+      <button id="closefullscreen">
+        No
+      </button>
+    </div>
+
+    <div class="ui">
+      <div class="header">
+        auto<em>lux</em>
+      </div>
+
+      <p>
+        you are player <span id="playerindex">0</span> of <span id="playercount">0</span>, your color is <span id="colorsample"></span>
+      </p>
+
+      <div class="speedometer">
+        <div class="label">
+          Speed
+        </div>
+        <div class="bar">
+          <div class="fill" id="speedometerfill"></div>
+        </div>
+        <!-- <div class="number">
+          123 km/h
+        </div> -->
+      </div>
+
+      <!-- <div class="turbometer">
+        <div class="label">
+          Boost
+        </div>
+        <div class="bar">
+          <div class="fill" id="turbofill"></div>
+        </div>
+      </div> -->
+
+      <!-- <div class="penaltymeter">
+        <div class="label">
+          Penalty
+        </div>
+        <div class="bar">
+          <div class="fill" id="penaltyfill"></div>
+        </div>
+        <div class="number">
+          123 sec
+        </div>
+      </div> -->
+
+      <div class="heatmeter">
+        <div class="label">
+          Temp.
+        </div>
+        <div class="bar">
+          <div class="fill" id="heatfill"></div>
+        </div>
+      </div>
+
+      <div class="position">
+        <div class="label">
+          Position
+        </div>
+        <div class="bar" id="positionmarkers">
+          <div class="marker" id="positionmarker"></div>
+        </div>
+      </div>
+
+      <!-- <button id="turbobutton" disabled>
+        Fire boost
+      </button> -->
+
+      <!--
+      <button id="throttlebutton">
+        Increase throttle
+      </button>
+      -->
+
+      <div id="throttlezone">
+        <div class="fill" id="throttlezonefill">
+
+        </div>
+        <div class="label">Throttle</div>
+      </div>
+
+      <!-- <pre id="debug"></pre> -->
+    </div>
+
+    <script type="module" src="src/play.js"></script>
+  </body>
+</html>

@@ -19,46 +19,29 @@ export const LEVEL = {
     },
     {
       index: 3,
-      x: 500,
-      y: 100,
+      x: 600,
+      y: 300,
     },
-    // {
-    //   index: 4,
-    //   x: 650,
-    //   y: 300,
-    // },
-    // {
-    //   index: 5,
-    //   x: 500,
-    //   y: 450,
-    // },
-    // {
-    //   index: 6,
-    //   x: 300,
-    //   y: 200,
-    // },
-    // {
-    //   index: 7,
-    //   x: 250,
-    //   y: 350,
-    // },
+    {
+      index: 4,
+      x: 600,
+      y: 450,
+    },
   ],
 
   segments: [
-    { from: 0, to: 1, length: 200 },
-    { from: 1, to: 2, length: 200 },
-    { from: 2, to: 3, length: 200 },
-    // { from: 3, to: 4, length: 25 },
-    // { from: 4, to: 5, length: 20 },
-    // { from: 5, to: 6, length: 30 },
-    // { from: 6, to: 7, length: 15 },
+    { from: 0, to: 1, length: 160 },
+    { from: 1, to: 2, length: 160 },
+    { from: 2, to: 3, length: 160 },
+    { from: 3, to: 4, length: 160 },
+    { from: 4, to: 0, length: 160 },
   ],
 
   trafficlights: {
     start: 10,
-    end: 900,
+    end: 800,
     every: 16,
-    brightness: 50,
+    brightness: 30,
   },
 
   // speakers: [
@@ -96,55 +79,6 @@ export const LEVEL = {
 
   zones: [
     {
-      id: "c1",
-      type: "curve",
-      startPercent: 9.0,
-      lengthPercent: 3.0,
-      featherPercent: 2.0,
-    },
-    {
-      type: "curve",
-      startPercent: 26.0,
-      lengthPercent: 3.0,
-      featherPercent: 3.0,
-    },
-    {
-      type: "curve",
-      startPercent: 37.0,
-      lengthPercent: 3.0,
-      featherPercent: 4.0,
-    },
-    {
-      type: "curve",
-      startPercent: 54.0,
-      lengthPercent: 3.0,
-      featherPercent: 4.0,
-    },
-    {
-      type: "curve",
-      startPercent: 68.0,
-      lengthPercent: 3.0,
-      featherPercent: 2.0,
-    },
-    {
-      type: "curve",
-      startPercent: 88.0,
-      lengthPercent: 3.0,
-      featherPercent: 2.0,
-    },
-    // {
-    //   type: "speedup",
-    //   startPercent: 60.0,
-    //   lengthPercent: 5.0,
-    //   featherPercent: 3.0,
-    // },
-    // {
-    //   type: "slowdown",
-    //   startPercent: 30.0,
-    //   lengthPercent: 5.0,
-    //   featherPercent: 4.0,
-    // },
-    {
       id: "goal",
       type: "goal",
       startPercent: 95.0,
@@ -158,11 +92,88 @@ export const LEVEL = {
       lengthPercent: 5.0,
       featherPercent: 3.0,
     },
+
+
+    {
+      id: "fastzone",
+      type: "speed",
+      startPercent: 10.0,
+      lengthPercent: 10.0,
+      featherPercent: 3.0,
+      speedMultiplier: 2.0
+    },
+
+    {
+      id: "slowzone",
+      type: "speed",
+      startPercent: 60.0,
+      lengthPercent: 5.0,
+      featherPercent: 3.0,
+      speedMultiplier: 0.66
+    },
+    {
+      id: "slowzone",
+      type: "speed",
+      startPercent: 65.0,
+      lengthPercent: 10.0,
+      featherPercent: 3.0,
+      speedMultiplier: 0.33
+    },
+    {
+      id: "slowzone",
+      type: "speed",
+      startPercent: 75.0,
+      lengthPercent: 5.0,
+      featherPercent: 3.0,
+      speedMultiplier: 0.66
+    },
+
+
+    {
+      type: "checkpoint",
+      startPercent: 30.0,
+      lengthPercent: 1.0,
+      featherPercent: 0.0,
+      note: 'C4',
+      color: [100,150,200],
+    },
+    {
+      type: "checkpoint",
+      startPercent: 35.0,
+      lengthPercent: 1.0,
+      featherPercent: 0.0,
+      note: 'E4',
+      color: [100,150,200],
+    },
+    {
+      type: "checkpoint",
+      startPercent: 40.0,
+      lengthPercent: 1.0,
+      featherPercent: 0.0,
+      note: 'G4',
+      color: [100,150,200],
+    },
+    {
+      type: "checkpoint",
+      startPercent: 45.0,
+      lengthPercent: 1.0,
+      featherPercent: 0.0,
+      note: 'B4',
+      color: [100,150,200],
+    },
+    {
+      type: "checkpoint",
+      startPercent: 80.0,
+      lengthPercent: 1.0,
+      featherPercent: 0.0,
+      note: 'C5',
+      color: [100,150,200],
+    },
     // {
-    //   type: "tunnel",
-    //   startPercent: 14.0,
-    //   lengthPercent: 10.0,
-    //   featherPercent: 4.0,
+    //   type: "checkpoint",
+    //   startPercent: 80.0,
+    //   lengthPercent: 2.0,
+    //   featherPercent: 0.0,
     // },
   ],
 };

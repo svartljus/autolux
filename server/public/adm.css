@@ -1,9 +1,14 @@
-body {
-    background-color: #111;
-    color: #eee;
-}
-
 canvas#canvas {
     width: 700px;
     height: 500px;
+}
+
+canvas#canvas2 {
+    width: 700px;
+    height: 200px;
+}
+
+canvas#canvas3 {
+    width: 700px;
+    height: 400px;
 }

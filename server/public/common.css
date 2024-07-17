@@ -1,0 +1,19 @@
+body {
+    background-color: #111;
+    color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+p { margin: 0 }
+
+div.header {
+    font-size: 20px;
+}
+
+div.ui {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
