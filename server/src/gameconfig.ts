@@ -22,19 +22,19 @@ export const LEVEL = {
       x: 600,
       y: 300,
     },
-    {
-      index: 4,
-      x: 600,
-      y: 450,
-    },
+    // {
+    //   index: 4,
+    //   x: 600,
+    //   y: 450,
+    // },
   ],
 
   segments: [
-    { from: 0, to: 1, length: 160 },
-    { from: 1, to: 2, length: 160 },
-    { from: 2, to: 3, length: 160 },
-    { from: 3, to: 4, length: 160 },
-    { from: 4, to: 0, length: 160 },
+    { from: 0, to: 1, length: 150 },
+    { from: 1, to: 2, length: 150 },
+    { from: 2, to: 3, length: 150 },
+    { from: 3, to: 0, length: 150 },
+    // { from: 4, to: 0, length: 160 },
   ],
 
   trafficlights: {
@@ -43,39 +43,6 @@ export const LEVEL = {
     every: 16,
     brightness: 30,
   },
-
-  // speakers: [
-  //   {
-  //     start: 0,
-  //     end: 20,
-  //     feather: 100,
-  //     output: 0,
-  //   },
-  //   {
-  //     start: 90,
-  //     end: 100,
-  //     feather: 100,
-  //     output: 0,
-  //   },
-  //   {
-  //     start: 20,
-  //     end: 50,
-  //     feather: 100,
-  //     output: 1,
-  //   },
-  //   {
-  //     start: 60,
-  //     end: 70,
-  //     feather: 100,
-  //     output: 2,
-  //   },
-  //   {
-  //     start: 80,
-  //     end: 90,
-  //     feather: 100,
-  //     output: 3,
-  //   },
-  // ],
 
   zones: [
     {

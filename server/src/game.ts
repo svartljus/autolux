@@ -20,7 +20,7 @@ let showMode = 0;
 let blinkphase1 = 0;
 
 export let PLAYER_COLORS = [
-  [0xff, 30, 20],
+  [0xff, 30, 1],
   [50, 0xef, 50],
   [20, 30, 0xff],
   [200, 0, 200],
@@ -136,7 +136,7 @@ function stepGame(deltaTime) {
     if (pl.velocity < 0.0) {
       pl.velocity = 0.0;
     }
-    if (pl.throttle < 0.1) {
+    if (pl.throttle < 10) {
       pl.overdrive -= ovrfadesub;
       if (pl.overdrive < 0.0) {
         pl.overdrive = 0.0;
@@ -162,7 +162,7 @@ function stepGame(deltaTime) {
       pl.overdrive = 1.0;
     }
 
-    pl.overheating = pl.heat > 0.5
+    pl.overheating = pl.heat > 0.5;
 
     pl.zones = [];
     for (const z of level.zones) {
@@ -534,7 +534,6 @@ export function initGame() {
   //     type: "gamestate",
   //     gamestate,
   //   };
-
   //   broadcast(update2);
   // }, 100);
 
@@ -542,9 +541,9 @@ export function initGame() {
     // purge idle players
     gamestate.players = gamestate.players.filter((pl) => {
       const inactivity = Date.now() - pl.lastseen;
-      const purge = inactivity > 15000
+      const purge = inactivity > 15000;
       if (purge) {
-        console.log('Purging inactive player', pl.id, inactivity)
+        console.log("Purging inactive player", pl.id, inactivity);
       }
       return !purge;
     });
@@ -583,9 +582,6 @@ export function initGame() {
         };
       }),
       blinkphase: gamestate.blinkphase,
-      overheatblink1: gamestate.overheatblink1,
-      overheatblink2: gamestate.overheatblink2,
-      overheatblink3: gamestate.overheatblink3,
     };
     broadcast(update);
   }, 100);
