@@ -17,15 +17,23 @@ let LEDS_PER_SECOND_OVERDRIVE =
   OVERDRIVE_METERS_PER_SECOND * LED_PIXELS_PER_METER;
 let segmentlengthledmultiplier = 1.0;
 let showMode = 0;
-let blinkphase1 = 0;
 
-export let PLAYER_COLORS = [
-  [0xff, 30, 1],
-  [50, 0xef, 50],
-  [20, 30, 0xff],
-  [200, 0, 200],
-  [200, 200, 0],
-  [0, 200, 200],
+export let PLAYER_LED_COLORS = [
+  [255, 30, 10],
+  [10, 255, 30],
+  [30, 10, 255],
+  [230, 10, 220],
+  [220, 230, 10],
+  [10, 220, 230],
+];
+
+export let PLAYER_DISPLAY_COLORS = [
+  [250, 30, 10],
+  [10, 230, 30],
+  [10, 30, 230],
+  [180, 10, 170],
+  [170, 180, 10],
+  [10, 170, 180],
 ];
 
 interface PlayerState {
@@ -40,6 +48,8 @@ interface PlayerState {
   heat: number;
   lastposition: number;
   color: number[];
+  ledcolor: number[];
+  displaycolor: number[];
   lastseen: number;
   zones: string[];
 }
@@ -307,8 +317,7 @@ function renderPlayerBuffer() {
     if (l >= 0 && l < ledcount) {
       output[l] = addMulColors(
         output[l],
-        pl.color,
-        // PLAYER_COLORS[pl.index % PLAYER_COLORS.length],
+        pl.ledcolor,
         playermul
       );
     }
@@ -324,8 +333,7 @@ function renderPlayerBuffer() {
       if (l2 >= 0 && l2 < ledcount) {
         output[l2] = addMulColors(
           output[l2],
-          pl.color,
-          // PLAYER_COLORS[pl.index % PLAYER_COLORS.length],
+          pl.ledcolor,
           playermul * mul
         );
       }
@@ -431,8 +439,9 @@ export function touchPlayer(id: string): number {
   const position = 20 + 30 * idx;
   const velocity = 10 + 300 * Math.random();
   const index = gamestate.players.length + 1;
-  const color = PLAYER_COLORS[index % PLAYER_COLORS.length];
-  const newplayer = {
+  const ledcolor = PLAYER_LED_COLORS[index % PLAYER_LED_COLORS.length];
+  const displaycolor = PLAYER_DISPLAY_COLORS[index % PLAYER_DISPLAY_COLORS.length];
+  const newplayer: PlayerState = {
     index,
     id,
     throttle: 0,
@@ -442,7 +451,9 @@ export function touchPlayer(id: string): number {
     heat: 0,
     age: 0,
     lastposition: -1,
-    color,
+    color: ledcolor,
+    ledcolor,
+    displaycolor,
     lastseen: Date.now(),
     overheating: false,
     zones: [],

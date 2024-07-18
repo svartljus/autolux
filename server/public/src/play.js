@@ -3,36 +3,22 @@ import { hexColorFromArray } from "./util.js";
 
 console.log("hej ctrl");
 
-// const THROTTLEBUFFER_LENGTH = 100;
-
 let myId = "";
 let myIndex = -1;
 let totalPlayerCount = -1;
-let mySpeed = 0;
-let myBoost = 0;
-let myPenalty = 0;
 let throttleDown = false;
-// let throttleBuffer = []
 let targetHeat = 0;
 let currentHeat = 0;
 let currentThrottle = 0;
 let targetThrottle = 0;
 let lastThrottlePercent = -1;
-let boostEnabled = false;
-let lastGamestate = {};
 let currentSpeed = 0;
 let targetSpeed = 0;
 let overheating = false;
-let currentPosition = 1;
-let otherPositions = [];
 let playerPositionMarkers = {};
 let trackLength = 42;
 
-function resetPlayer(idx) {
-  // gamestate.players[idx].position = 0;
-  // gamestate.players[idx].velocity = 0;
-  // playerthrottleelement[idx].value = 0;
-}
+function resetPlayer(idx) {}
 
 function restartGame() {
   resetPlayer(0);
@@ -44,7 +30,6 @@ let conn;
 let synth;
 let osc1;
 let osc2;
-let osc3;
 
 function connectWs() {
   conn = new WebSocket(`ws://${location.host}/socket`);
@@ -93,18 +78,13 @@ function connectWs() {
           document.getElementById("playerindex").textContent =
             data.index.toString();
 
-          const color = hexColorFromArray(data.state.color);
-          document.getElementById("colorsample").style.backgroundColor = color;
+          const color = hexColorFromArray(data.state.displaycolor);
+          document.body.style.setProperty("--player-color", color);
 
           totalPlayerCount = data.count ?? 0;
           document.getElementById("playercount").textContent =
             totalPlayerCount.toString();
         }
-        // } else if (data.type === "player-count") {
-        //   console.log("got player count", data);
-        //   totalPlayerCount = data.players.length ?? 0;
-        //   document.getElementById("playercount").textContent =
-        //     totalPlayerCount.toString();
       } else if (data.type === "enter-zone") {
         console.log("enter zone event", data);
         if (data.zone === "checkpoint") {
@@ -126,51 +106,8 @@ function connectWs() {
       } else if (data.type === "leave-zone") {
         console.log("leave zone event", data);
       } else if (data.type === "sound") {
-        // if (synth) {
-        //   const now = Tone.now();
-        //   synth.triggerAttackRelease("E4", "8n", now);
-        // }
       } else if (data.type === "gamestate") {
-        // lastGamestate = data.gamestate;
-        // trackLength = lastGamestate.tracklength;
-        // document.getElementById("playercount").textContent =
-        //   lastGamestate.players.length.toString();
-        // // document.getElementById("debug").textContent = JSON.stringify(
-        // //   lastGamestate,
-        // //   null,
-        // //   2
-        // // );
-        // const otherpos = [];
-        // lastGamestate.players.forEach((p) => {
-        //   if (p.id === myId) {
-        //     targetSpeed = p.velocity;
-        //     targetHeat = p.heat;
-        //     currentPosition = p.position;
-        //     overheating = p.overheating;
-        //   } else {
-        //     otherpos.push(p.position);
-        //   }
-        // });
-        // otherPositions = otherpos;
-        // const el3 = document.getElementById("positionmarkers");
-        // el3.innerHTML = "";
-        // const positions = {};
-        // lastGamestate.players.forEach((p) => {
-        //   const el4 = document.createElement("div");
-        //   // <div class="marker" id="positionmarker"></div>;
-        //   el4.classList.add("marker");
-        //   if (p.id === myId) {
-        //     el4.classList.add("you");
-        //   }
-        //   positions[p.id] = el4;
-        //   el4.style.left = `${Math.round((p.position * 100) / trackLength)}%`;
-        //   el3.appendChild(el4);
-        // });
-        // playerPositionMarkers = positions;
-        // console.log("playerPositionMarkers", playerPositionMarkers);
       } else if (data.type === "player-update") {
-        // lastGamestate = data.gamestate;
-
         trackLength = data.tracklength;
 
         if (data.players.length !== totalPlayerCount) {
@@ -178,12 +115,6 @@ function connectWs() {
           document.getElementById("playercount").textContent =
             totalPlayerCount.toString();
         }
-
-        // document.getElementById("debug").textContent = JSON.stringify(
-        //   lastGamestate,
-        //   null,
-        //   2
-        // );
 
         const otherpos = [];
         data.players.forEach((p) => {
@@ -212,7 +143,6 @@ function connectWs() {
         const positions = {};
         data.players.forEach((p) => {
           const el4 = document.createElement("div");
-          // <div class="marker" id="positionmarker"></div>;
           el4.classList.add("marker");
           if (p.id === myId) {
             el4.classList.add("you");
@@ -231,28 +161,6 @@ function connectWs() {
         });
       } else if (data.type === "artnet") {
       } else if (data.type === "map") {
-        // console.log("player update", data);
-        // if (osc1) {
-        //   osc1.volume.value = Math.max(
-        //     -24,
-        //     Math.min(1.0, -24.0 + data.players[0].totalvelocity * 30)
-        //   );
-        //   osc1.frequency.value = 100 + data.players[0].totalvelocity * 300;
-        // }
-        // if (osc2) {
-        //   osc2.volume.value = Math.max(
-        //     -24,
-        //     Math.min(1.0, -24.0 + data.players[1].totalvelocity * 30)
-        //   );
-        //   osc2.frequency.value = 100 + data.players[1].totalvelocity * 300;
-        // }
-        // if (osc3) {
-        //   osc3.volume.value = Math.max(
-        //     -24,
-        //     Math.min(1.0, -24.0 + data.players[2].totalvelocity * 30)
-        //   );
-        //   osc3.frequency.value = 100 + data.players[2].totalvelocity * 300;
-        // }
       } else {
         console.log("Unhandled message", data);
       }
@@ -720,6 +628,10 @@ function init() {
   }
 
   function closeFullscreenPopup() {
+    if (document.fullscreenElement) {
+      return;
+    }
+
     document.getElementById("fullscreenmodal").classList.add("hidden");
   }
 
@@ -858,11 +770,10 @@ function init() {
 
       osc2 = new Tone.Oscillator(102, "triangle").toDestination().start();
       osc2.volume.value = 0.0;
-
-      // osc3 = new Tone.Oscillator(103, "sine").toDestination().start();
-      // osc3.volume.value = 0.5;
     }
   });
+
+  setTimeout(closeFullscreenPopup, 5000);
 }
 
 window.addEventListener("load", init);

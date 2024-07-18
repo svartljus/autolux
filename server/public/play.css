@@ -1,15 +1,43 @@
+body {
+  background-color: #000;
+  --player-color: #555;
+
+  --player-color-90: color-mix(in srgb, var(--player-color) 90%, #000 10%);
+  --player-color-80: color-mix(in srgb, var(--player-color) 80%, #000 20%);
+  --player-color-65: color-mix(in srgb, var(--player-color) 65%, #000 35%);
+  --player-color-50: color-mix(in srgb, var(--player-color) 50%, #000 50%);
+  --player-color-40: color-mix(in srgb, var(--player-color) 40%, #000 60%);
+  --player-color-25: color-mix(in srgb, var(--player-color) 25%, #000 75%);
+}
+
+.glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 350px;
+  z-index: -2;
+  background: linear-gradient(
+    180deg,
+    var(--player-color-50) 0%,
+    var(--player-color-25) 33%,
+    transparent 100%
+  );
+  opacity: 1;
+}
+
 canvas#canvas {
   width: 700px;
   height: 500px;
 }
 
 #colorsample {
-    display: inline-block;
-    background-color: #555;
-    width: 60px;
-    height: 20px;
-    border-radius: 20px;
-    vertical-align: bottom;
+  display: inline-block;
+  background-color: var(--player-color);
+  width: 60px;
+  height: 20px;
+  border-radius: 20px;
+  vertical-align: bottom;
 }
 
 button {
@@ -37,27 +65,31 @@ button#throttlebutton {
 
 #throttlezone {
   height: 350px;
-  background-color: #575;
+  /* background-color: #575; */
+  background-color: var(--player-color-40);
   position: relative;
   border-radius: 20px;
   overflow: hidden;
+  border: 1px solid #000;
 }
 
 #throttlezone.active {
-  background-color: #8a8;
+  /* background-color: #8a8; */
+  background-color: var(--player-color-25);
+  /* opacity: 0.66; */
 }
 
 #throttlezone .fill {
   position: absolute;
   bottom: 0;
   pointer-events: none;
-  background-color: #aca;
+  background-color: var(--player-color-90);
   width: 100%;
   height: 10px;
 }
 
 #throttlezone.active .fill {
-  background-color: #dfd;
+  background-color: var(--player-color-65);
 }
 
 #throttlezone .label {
@@ -71,25 +103,20 @@ button#throttlebutton {
   color: #fff;
 }
 
-#throttlezone.active .label {
-    color: #000;
-}
-
-
 .bar {
   flex: 1;
-  padding: 5px;
-  background-color: #444;
+  padding: 2px;
+  background-color: #111;
   border-radius: 10px;
   position: relative;
 }
 
 .bar .fill {
-  height: 10px;
-  min-width: 10px;
-  width: 20px;
-  background-color: #ff0;
-  border-radius: 10px;
+  height: 14px;
+  min-width: 14px;
+  width: 14px;
+  background-color: #ff6;
+  border-radius: 14px;
 }
 
 .label {
@@ -111,28 +138,17 @@ div.position {
   gap: 10px;
 }
 
-div.throttlemeter .bar .fill {
-  background-color: #08f;
-}
-
 div.speedometer .bar .fill {
-  background-color: #0f0;
-}
-
-div.turbometer .bar .fill {
-  background-color: #ff0;
-}
-
-div.penaltymeter .bar .fill {
-  background-color: #f80;
+  /* background-color: #6f6; */
+  background-color: #eee;
 }
 
 div.heatmeter .bar .fill {
-  background-color: #f00;
+  /* background-color: #f66; */
+  background-color: #eee;
 }
 
 div.heatmeter.overheating {
-  color: #f66;
   animation-name: blonkiblonk;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
@@ -141,26 +157,30 @@ div.heatmeter.overheating {
 
 @keyframes blonkiblonk {
   0% {
-    opacity: 0.0;
+    opacity: 1;
   }
-  50% {
-    opacity: 1.0;
+  49% {
+    opacity: 1;
+  }
+  51% {
+    opacity: 0;
   }
   100% {
-    opacity: 0.0;
+    opacity: 0;
   }
 }
 
 div.position .bar .marker {
   position: absolute;
-  background-color: #777;
-  height: 10px;
-  width: 2px;
+  background-color: #666;
+  height: 14px;
+  width: 1px;
   left: 30%;
 }
 
 div.position .bar .marker.you {
   background-color: #fff;
+  width: 2px;
 }
 
 pre#debug {
@@ -179,9 +199,15 @@ pre#debug {
   position: absolute;
   left: 0;
   bottom: 0;
-  padding: 10px;
-  z-index: 2;
-  background-color: rgba(0,0,0,0.66);
+  padding: 20px;
+  z-index: 5;
+  box-sizing: border-box;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
 }
 
 #fullscreenmodal.hidden {
@@ -191,4 +217,16 @@ pre#debug {
 #fullscreenmodal button {
   padding: 10px;
   width: 100px;
+  color: #fff;
+  background-color: var(--player-color-65);
+}
+
+#fullscreenmodal button:nth-child(2) {
+  background-color: var(--player-color-25);
+}
+
+#fullscreenmodal .buttons {
+  gap: 10px;
+  display: flex;
+  flex-direction: row;
 }
