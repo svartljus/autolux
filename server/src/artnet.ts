@@ -2,8 +2,7 @@ import * as artnetModule from "artnet";
 import { broadcast } from "./web";
 
 const ARTNET_OPTIONS = {
-  // host: "192.168.8.116",
-  host: "192.168.1.42",
+  host: "1.2.3.42",
   sendAll: true,
   refresh: 60,
 };

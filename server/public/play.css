@@ -2,12 +2,15 @@ body {
   background-color: #000;
   --player-color: #555;
 
+  padding: 0;
+  margin: 0;
   --player-color-90: color-mix(in srgb, var(--player-color) 90%, #000 10%);
   --player-color-80: color-mix(in srgb, var(--player-color) 80%, #000 20%);
   --player-color-65: color-mix(in srgb, var(--player-color) 65%, #000 35%);
   --player-color-50: color-mix(in srgb, var(--player-color) 50%, #000 50%);
   --player-color-40: color-mix(in srgb, var(--player-color) 40%, #000 60%);
   --player-color-25: color-mix(in srgb, var(--player-color) 25%, #000 75%);
+  --player-color-10: color-mix(in srgb, var(--player-color) 10%, #000 90%);
 }
 
 .glow {
@@ -34,7 +37,7 @@ canvas#canvas {
 #colorsample {
   display: inline-block;
   background-color: var(--player-color);
-  width: 60px;
+  width: 20px;
   height: 20px;
   border-radius: 20px;
   vertical-align: bottom;
@@ -60,11 +63,14 @@ button:active:not(:disabled) {
 }
 
 button#throttlebutton {
-  height: 200px;
+  height: 70vh;
+  max-height: 220px;
 }
 
 #throttlezone {
-  height: 350px;
+  height: 60vh;
+  max-height: 320px;
+  /* height: 350px; */
   /* background-color: #575; */
   background-color: var(--player-color-40);
   position: relative;
@@ -125,6 +131,12 @@ button#throttlebutton {
 
 .number {
   width: 80px;
+}
+
+div.meters {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 div.throttlemeter,
@@ -203,6 +215,7 @@ pre#debug {
   z-index: 5;
   box-sizing: border-box;
   background-color: #000;
+  background-color: var(--player-color-10);
   display: flex;
   flex-direction: column;
   gap: 10px;

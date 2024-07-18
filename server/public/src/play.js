@@ -17,6 +17,8 @@ let targetSpeed = 0;
 let overheating = false;
 let playerPositionMarkers = {};
 let trackLength = 42;
+let currentPosition = 0;
+let otherPositions = [];
 
 function resetPlayer(idx) {}
 
@@ -689,10 +691,6 @@ function init() {
         document.getElementById("heatmeter").classList.remove("overheating");
       }
     }
-
-    // document.getElementById("positionmarker").style.left = `${Math.round(
-    //   (currentPosition * 100) / trackLength
-    // )}%`;
 
     const throttleHeight =
       10 + Math.max(0, Math.min(100, currentThrottle)) * 0.9;
