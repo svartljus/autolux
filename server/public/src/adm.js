@@ -122,6 +122,7 @@ function renderFrame() {
     ctx.fillText(`#${v.index}`, v.x, v.y + 15);
   }
 
+  let start = 0;
   for (const s of level.segments) {
     const v0 = level.vertices[s.from];
     const v1 = level.vertices[s.to];
@@ -132,6 +133,13 @@ function renderFrame() {
     ctx.moveTo(v0.x, v0.y);
     ctx.lineTo(v1.x, v1.y);
     ctx.stroke();
+
+    const cx = (v0.x + v1.x) / 2.0;
+    const cy = (v0.y + v1.y) / 2.0;
+    ctx.fillStyle = "#fc0";
+    const end = start + s.length;
+    ctx.fillText(`@${start}-${end}`, cx, cy + 15);
+    start = end
   }
 
   ctx.strokeStyle = "";
@@ -339,6 +347,15 @@ function setShowMode(mode) {
   conn.send(JSON.stringify(data));
 }
 
+function setUpdateSpeed(speed) {
+  const data = {
+    type: "set-update-speed",
+    speed,
+  };
+
+  conn.send(JSON.stringify(data));
+}
+
 function init() {
   connectWs();
 
@@ -375,40 +392,6 @@ function init() {
   canvaselement3.width = canvaswidth3;
   canvaselement3.height = canvasheight3;
 
-  // playerthrottleelement[0] = document.getElementById("throttle1");
-  // playerthrottleelement[1] = document.getElementById("throttle2");
-  // playerthrottleelement[2] = document.getElementById("throttle3");
-
-  // playerpositionelement[0] = document.getElementById("position1");
-  // playerpositionelement[1] = document.getElementById("position2");
-  // playerpositionelement[2] = document.getElementById("position3");
-
-  // playervelocityelement[0] = document.getElementById("velocity1");
-  // playervelocityelement[1] = document.getElementById("velocity2");
-  // playervelocityelement[2] = document.getElementById("velocity3");
-
-  // document
-  //   .getElementById("reset1")
-  //   .addEventListener("click", () => resetPlayer(0));
-  // document
-  //   .getElementById("reset2")
-  //   .addEventListener("click", () => resetPlayer(1));
-  // document
-  //   .getElementById("reset3")
-  //   .addEventListener("click", () => resetPlayer(2));
-  // document
-  //   .getElementById("restartgame")
-  //   .addEventListener("click", () => restartGame());
-  // document
-  //   .getElementById("stopgame")
-  //   .addEventListener("click", () => stopGame());
-  // document
-  //   .getElementById("startdemo")
-  //   .addEventListener("click", () => startDemo());
-  // document
-  //   .getElementById("connectble")
-  //   .addEventListener("click", () => connectBle());
-
   document
     .getElementById("show0")
     .addEventListener("click", () => setShowMode(0));
@@ -418,13 +401,18 @@ function init() {
   document
     .getElementById("show2")
     .addEventListener("click", () => setShowMode(2));
+  document
+    .getElementById("show3")
+    .addEventListener("click", () => setShowMode(3));
 
-  //   startDemo();
+  document
+    .getElementById("updatespeed0")
+    .addEventListener("click", () => setUpdateSpeed(0));
+  document
+    .getElementById("updatespeed1")
+    .addEventListener("click", () => setUpdateSpeed(1));
+
   restartGame();
-
-  // resetPlayer(0);
-  // resetPlayer(1);
-  // resetPlayer(2);
 
   renderFrame();
 

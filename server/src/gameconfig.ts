@@ -4,44 +4,67 @@ export const LEVEL = {
   vertices: [
     {
       index: 0,
-      x: 100,
-      y: 300,
+      x: 250,
+      y: 400,
     },
     {
       index: 1,
-      x: 140,
-      y: 100,
+      x: 100,
+      y: 450,
     },
     {
       index: 2,
+      x: 50,
+      y: 140,
+    },
+    {
+      index: 3,
+      x: 150,
+      y: 180,
+    },
+    {
+      index: 4,
+      x: 600,
+      y: 50,
+    },
+    {
+      index: 5,
+      x: 450,
+      y: 250,
+    },
+    {
+      index: 6,
       x: 400,
       y: 150,
     },
     {
-      index: 3,
-      x: 600,
-      y: 300,
+      index: 7,
+      x: 650,
+      y: 200,
     },
-    // {
-    //   index: 4,
-    //   x: 600,
-    //   y: 450,
-    // },
+    {
+      index: 8,
+      x: 350,
+      y: 400,
+    },
   ],
 
   segments: [
-    { from: 0, to: 1, length: 150 },
-    { from: 1, to: 2, length: 150 },
-    { from: 2, to: 3, length: 150 },
-    { from: 3, to: 0, length: 150 },
-    // { from: 4, to: 0, length: 160 },
+    { from: 0, to: 1, length: 20 },
+    { from: 1, to: 2, length: 80 },
+    { from: 2, to: 3, length: 48 },
+    { from: 3, to: 4, length: 175 },
+    { from: 4, to: 5, length: 80 },
+    { from: 5, to: 6, length: 64 },
+    { from: 6, to: 7, length: 80 },
+    { from: 7, to: 8, length: 80 },
   ],
 
   trafficlights: {
     start: 10,
     end: 800,
     every: 16,
-    brightness: 30,
+    brightness: 20,
   },
 
   zones: [
@@ -51,6 +74,7 @@ export const LEVEL = {
       startPercent: 95.0,
       lengthPercent: 5.0,
       featherPercent: 3.0,
+      color: [30, 30, 30],
     },
     {
       id: "start",

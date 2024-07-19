@@ -3,10 +3,16 @@ import { LEVEL } from "./gameconfig";
 import { broadcast } from "./web";
 import { v4 } from "uuid";
 
+const SHOWMODE_OUTPUT = 0
+const SHOWMODE_DMXMAPPING = 1
+const SHOWMODE_ZONES = 2
+const SHOWMODE_PIXELCOUNT = 3
+
 let ledpositions = [];
 let ledcount = 0;
-let ledbackgroundbuffer1;
-let ledbackgroundbuffer2;
+let ledBackgroundBufferDefault;
+let ledBackgroundBufferZones;
+let ledBackgroundBufferPixelCount;
 let MAX_SPEED_METERS_PER_SECOND = 0.66;
 let LED_PIXELS_PER_METER = 60.0;
 let OVERDRIVE_METERS_PER_SECOND = 0.66;
@@ -17,6 +23,7 @@ let LEDS_PER_SECOND_OVERDRIVE =
   OVERDRIVE_METERS_PER_SECOND * LED_PIXELS_PER_METER;
 let segmentlengthledmultiplier = 1.0;
 let showMode = 0;
+let updateSpeed = 0;
 
 export let PLAYER_LED_COLORS = [
   [255, 30, 10],
@@ -99,10 +106,6 @@ function addMulColors(rgb1, rgb2, mul) {
 }
 
 function stepGame(deltaTime) {
-  const velfadeadd = 9.0 * deltaTime;
-  const velfadesub = 6.0 * deltaTime;
-  const ovrfadeadd = 0.1 * deltaTime;
-  const ovrfadesub = 1.0 * deltaTime;
   const ovrspeed = 0.1 * deltaTime;
   const heatfadeadd = 0.1 * deltaTime;
   const heatfadesub = 0.2 * deltaTime;
@@ -188,7 +191,7 @@ function stepGame(deltaTime) {
       }
 
       if (pl.position >= z.startPixel && pl.lastposition < z.startPixel) {
-        // console.log("player entered zone", z);
+        // console.log("player entepplad zone", z);
         const update = {
           type: "enter-zone",
           player: p,
@@ -216,21 +219,45 @@ function stepGame(deltaTime) {
   }
 }
 
-function renderBuffer(debug: number = 0) {
+function renderBuffer(mode: number = 0) {
   const output = [];
 
   for (let l = 0; l < ledcount; l++) {
     output[l] = [0, 0, 0];
 
-    if (level.trafficlights) {
-      if (l >= level.trafficlights.start && l < level.trafficlights.end) {
-        var o = (l - level.trafficlights.start) % level.trafficlights.every;
-        if (o === 0) {
-          output[l] = [
-            level.trafficlights.brightness,
-            level.trafficlights.brightness,
-            level.trafficlights.brightness,
-          ];
+    if (mode === SHOWMODE_PIXELCOUNT) {
+      const ci = Math.floor(l / 20);
+      // pixel counting mode, RRRRR GGGGG BBBBB etc ....
+      let countcolor = [0, 0, 0];
+      switch (ci % 3) {
+        case 0:
+          countcolor = [64, 0, 0];
+          break;
+        case 1:
+          countcolor = [0, 64, 0];
+          break;
+        case 2:
+          countcolor = [0, 0, 64];
+          break;
+      }
+
+      output[l] = addColors(output[l], countcolor);
+      if (l % 20 === 0) {
+        output[l] = addColors(output[l], [255, 255, 255]);
+      }
+    }
+
+    if (mode === SHOWMODE_OUTPUT || mode === SHOWMODE_ZONES) {
+      if (level.trafficlights) {
+        if (l >= level.trafficlights.start && l < level.trafficlights.end) {
+          var o = (l - level.trafficlights.start) % level.trafficlights.every;
+          if (o === 0) {
+            output[l] = [
+              level.trafficlights.brightness,
+              level.trafficlights.brightness,
+              level.trafficlights.brightness,
+            ];
+          }
         }
       }
     }
@@ -240,7 +267,7 @@ function renderBuffer(debug: number = 0) {
     const z = level.zones[zi];
 
     for (let l = z.startPixel; l < z.endPixel; l++) {
-      if (debug > 0) {
+      if (mode === SHOWMODE_DMXMAPPING || mode === SHOWMODE_ZONES) {
         let zonecolor = [0, 0, 0];
         switch (zi % 3) {
           case 0:
@@ -272,7 +299,7 @@ function renderBuffer(debug: number = 0) {
         }
       }
 
-      if (debug === 0) {
+      if (mode === SHOWMODE_OUTPUT) {
         if (z.type === "checkpoint") {
           if (l === z.startPixel) {
             output[l] = addColors(output[l], z.color || [50, 50, 50]);
@@ -293,7 +320,7 @@ function renderBuffer(debug: number = 0) {
       }
 
       if (z.type === "goal") {
-        output[l] = addColors(output[l], [10, 10, 10]);
+        output[l] = addColors(output[l], z.color || [10, 10, 10]);
         // } else if (z.type === "start") {
         // output[l] = addColors(output[l], [10, 20, 10]);
       }
@@ -352,20 +379,16 @@ function addBuffers(buf1, buf2) {
 }
 
 function renderFrame() {
-  // const tmp = renderBuffer(0);
-
-  if (showMode === 2) {
-    const tmp3 = renderPlayerBuffer();
-    const tmp4 = addBuffers(ledbackgroundbuffer2, tmp3);
-    for (let l = 0; l < ledcount; l++) {
-      ledbuffer[l] = tmp4[l];
-    }
-  } else {
-    const tmp3 = renderPlayerBuffer();
-    const tmp4 = addBuffers(ledbackgroundbuffer1, tmp3);
-    for (let l = 0; l < ledcount; l++) {
-      ledbuffer[l] = tmp4[l];
-    }
+  const tmp3 = renderPlayerBuffer();
+  const bgbuf =
+    showMode === SHOWMODE_PIXELCOUNT
+      ? ledBackgroundBufferPixelCount
+      : showMode === SHOWMODE_ZONES
+      ? ledBackgroundBufferZones
+      : ledBackgroundBufferDefault;
+  const combined = addBuffers(bgbuf, tmp3);
+  for (let l = 0; l < ledcount; l++) {
+    ledbuffer[l] = combined[l];
   }
 }
 
@@ -469,11 +492,15 @@ export function setShowMode(mode: number) {
   showMode = mode;
 }
 
+export function setUpdateSpeed(speed: number) {
+  updateSpeed = speed;
+}
+
 export function sendMapInfo() {
   const update = {
     type: "map",
     positions: ledpositions,
-    debugbuffer: ledbackgroundbuffer2,
+    // debugbuffer: ledbackgroundbuffer2,
     level: level,
   };
 
@@ -519,34 +546,36 @@ export function initGame() {
     ledbuffer[l] = "#000";
   }
 
-  ledbackgroundbuffer1 = renderBuffer(0);
-  ledbackgroundbuffer2 = renderBuffer(1);
+  ledBackgroundBufferDefault = renderBuffer(SHOWMODE_OUTPUT);
+  ledBackgroundBufferZones = renderBuffer(SHOWMODE_ZONES);
+  ledBackgroundBufferPixelCount = renderBuffer(SHOWMODE_PIXELCOUNT);
 
   restartGame();
 
-  setInterval(() => {
-    const update = {
-      type: "map",
-      buffer: ledbuffer,
-    };
+  function queueFullUpdate() {
+    setTimeout(
+      () => {
+        const update = {
+          type: "map",
+          buffer: ledbuffer,
+        };
 
-    broadcast(update);
+        broadcast(update);
 
-    const update2 = {
-      type: "artnet",
-      universes: artnetbuffers,
-    };
+        const update2 = {
+          type: "artnet",
+          universes: artnetbuffers,
+        };
 
-    broadcast(update2);
-  }, 500);
+        broadcast(update2);
 
-  // setInterval(() => {
-  //   const update2 = {
-  //     type: "gamestate",
-  //     gamestate,
-  //   };
-  //   broadcast(update2);
-  // }, 100);
+        queueFullUpdate();
+      },
+      updateSpeed ? 100 : 1000
+    );
+  }
+
+  queueFullUpdate();
 
   setInterval(() => {
     // purge idle players
@@ -565,14 +594,10 @@ export function initGame() {
     stepGame(16 / 1000);
     renderFrame();
     blitArtNet(showMode === 1);
-    // if (frame % 50 === 0) {
-    //   console.log("gamestate: " + JSON.stringify(gamestate));
-    // }
     frame++;
   }, 16);
 
   setInterval(() => {
-    // console.log("gamestate", gamestate);
     const update = {
       type: "player-update",
       tracklength: ledcount,
@@ -592,5 +617,5 @@ export function initGame() {
       blinkphase: gamestate.blinkphase,
     };
     broadcast(update);
-  }, 100);
+  }, 80);
 }

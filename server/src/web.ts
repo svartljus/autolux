@@ -7,6 +7,7 @@ import {
   sendMapInfo,
   setPlayerThrottle,
   setShowMode,
+  setUpdateSpeed,
   startPlayerBoost,
   touchPlayer,
 } from "./game";
@@ -75,6 +76,8 @@ export function initWeb() {
         sendMapInfo();
       } else if (data.type === "set-show-mode") {
         setShowMode(data.mode as number);
+      } else if (data.type === "set-update-speed") {
+        setUpdateSpeed(data.speed as number);
       } else {
         console.log("Unhandled message", data);
       }
