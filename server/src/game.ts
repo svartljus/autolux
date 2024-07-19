@@ -3,10 +3,10 @@ import { LEVEL } from "./gameconfig";
 import { broadcast } from "./web";
 import { v4 } from "uuid";
 
-const SHOWMODE_OUTPUT = 0
-const SHOWMODE_DMXMAPPING = 1
-const SHOWMODE_ZONES = 2
-const SHOWMODE_PIXELCOUNT = 3
+const SHOWMODE_OUTPUT = 0;
+const SHOWMODE_DMXMAPPING = 1;
+const SHOWMODE_ZONES = 2;
+const SHOWMODE_PIXELCOUNT = 3;
 
 let ledpositions = [];
 let ledcount = 0;
@@ -24,6 +24,12 @@ let LEDS_PER_SECOND_OVERDRIVE =
 let segmentlengthledmultiplier = 1.0;
 let showMode = 0;
 let updateSpeed = 0;
+let isIdle = false;
+let idleTimer = 0;
+let idleDuration = 0;
+let idleStart = 0;
+let idleSpeed = 0;
+let idleColor = 0;
 
 export let PLAYER_LED_COLORS = [
   [255, 30, 10],
@@ -109,6 +115,19 @@ function stepGame(deltaTime) {
   const ovrspeed = 0.1 * deltaTime;
   const heatfadeadd = 0.1 * deltaTime;
   const heatfadesub = 0.2 * deltaTime;
+
+  isIdle = gamestate.players.length === 0;
+  idleTimer += deltaTime;
+  if (idleTimer > idleDuration) {
+    idleTimer = 0.0;
+    idleDuration = 2 + Math.random() * 5;
+    idleStart = Math.random() * ledcount;
+    idleSpeed = 100 + Math.random() * 750;
+    if (Math.random() < 0.5) {
+      idleSpeed = -idleSpeed;
+    }
+    idleColor++;
+  }
 
   gamestate.blinkphase += deltaTime;
   while (gamestate.blinkphase > 1.0) {
@@ -369,6 +388,70 @@ function renderPlayerBuffer() {
   return output;
 }
 
+function renderIdleBuffer() {
+  const output = [];
+
+  for (let l = 0; l < ledcount; l++) {
+    output[l] = [0, 0, 0];
+  }
+
+  let opa = Math.sin((idleTimer / idleDuration) * Math.PI);
+  let startx = idleStart + idleSpeed * (idleTimer / idleDuration);
+  let w = Math.abs(idleSpeed * 0.25);
+  // console.log('is idle', idleTimer, idleDuration, opa, w)
+  for (let o = -w; o <= w; o++) {
+    let x = startx + o;
+    while (x < 0) {
+      x += ledcount;
+    }
+    while (x >= ledcount) {
+      x -= ledcount;
+    }
+    x = Math.floor(x);
+
+    let opa2 = 1.0 - Math.abs(o) / w;
+
+    output[x] = addMulColors(
+      output[x],
+      PLAYER_LED_COLORS[idleColor % PLAYER_LED_COLORS.length],
+      opa * opa2 * 0.5
+    );
+    
+    output[x] = addMulColors(output[x], [255, 255, 255], opa * opa2 * 0.5);
+  }
+
+  // for (let p = 0; p < gamestate.players.length; p++) {
+  //   const pl: PlayerState = gamestate.players[p];
+  //   let l = Math.round(pl.position);
+  //   let fadeleds =
+  //     3 + Math.max(0, Math.round(pl.velocity * 15 + pl.overdrive * 30));
+  //   let l2 = Math.round(pl.position - fadeleds);
+  //   let playermul = 0.8 + 0.8 * pl.overdrive;
+
+  //   if (pl.overheating && gamestate.overheatblink1) {
+  //     playermul *= 0.2;
+  //   }
+  //   if (l >= 0 && l < ledcount) {
+  //     output[l] = addMulColors(output[l], pl.ledcolor, playermul);
+  //   }
+  //   for (var f = 1; f < fadeleds; f++) {
+  //     let mul = 1.0 - f / fadeleds;
+  //     l2 = l - f;
+  //     if (l2 < 0) {
+  //       l2 += ledcount;
+  //     }
+  //     if (l2 > ledcount) {
+  //       l2 -= ledcount;
+  //     }
+  //     if (l2 >= 0 && l2 < ledcount) {
+  //       output[l2] = addMulColors(output[l2], pl.ledcolor, playermul * mul);
+  //     }
+  //   }
+  // }
+
+  return output;
+}
+
 function addBuffers(buf1, buf2) {
   const output = [];
   for (let l = 0; l < ledcount; l++) {
@@ -379,14 +462,14 @@ function addBuffers(buf1, buf2) {
 }
 
 function renderFrame() {
-  const tmp3 = renderPlayerBuffer();
+  const tmp3 = isIdle ? renderIdleBuffer() : renderPlayerBuffer();
   const bgbuf =
     showMode === SHOWMODE_PIXELCOUNT
       ? ledBackgroundBufferPixelCount
       : showMode === SHOWMODE_ZONES
       ? ledBackgroundBufferZones
       : ledBackgroundBufferDefault;
-  const combined = addBuffers(bgbuf, tmp3);
+  let combined = addBuffers(bgbuf, tmp3);
   for (let l = 0; l < ledcount; l++) {
     ledbuffer[l] = combined[l];
   }

@@ -64,7 +64,7 @@ export const LEVEL = {
     start: 10,
     end: 800,
     every: 16,
-    brightness: 20,
+    brightness: 50,
   },
 
   zones: [

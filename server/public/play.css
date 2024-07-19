@@ -243,3 +243,16 @@ pre#debug {
   display: flex;
   flex-direction: row;
 }
+
+.ui {
+
+}
+
+.ui .icons {
+  
+}
+
+.ui .icons button {
+  width: auto;
+  padding: 5px;
+}

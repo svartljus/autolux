@@ -19,6 +19,7 @@ let playerPositionMarkers = {};
 let trackLength = 42;
 let currentPosition = 0;
 let otherPositions = [];
+let audioStarting = false;
 
 function resetPlayer(idx) {}
 
@@ -31,7 +32,7 @@ function restartGame() {
 let conn;
 let synth;
 let osc1;
-let osc2;
+// let osc2;
 
 function connectWs() {
   conn = new WebSocket(`ws://${location.host}/socket`);
@@ -115,7 +116,7 @@ function connectWs() {
               synth.triggerAttackRelease(
                 data.zonedata?.note || "E6",
                 "8n",
-                now+0.1
+                now + 0.1
               );
             }
           }
@@ -464,6 +465,7 @@ function init() {
   }
 
   throttlezone.addEventListener("touchstart", (e) => {
+    maybeEnableAudio();
     throttleDown = true;
     throttlezone.classList.add("active");
     targetThrottle = getThrottleFromTY(
@@ -714,18 +716,18 @@ function init() {
       throttleHeight
     )}%`;
 
-    if (osc1 && osc2) {
+    if (osc1) {
       osc1.volume.value = Math.max(
-        -24,
-        Math.min(1.0, -24.0 + currentSpeed * 18)
+        -36,
+        Math.min(1.0, -36.0 + currentSpeed * 36)
       );
-      osc1.frequency.value = 100 + currentSpeed * 300;
 
-      osc2.volume.value = Math.max(
-        -24,
-        Math.min(1.0, -24.0 + currentSpeed * 20)
-      );
-      osc2.frequency.value = 101 + currentSpeed * 190;
+      if (overheating) {
+        osc1.frequency.value = 30 + Math.pow(currentSpeed, 2.0) * 100;
+      } else {
+        osc1.frequency.value = 30 + Math.pow(currentSpeed, 2.0) * 200;
+      }
+      // osc1.width.value = 0.8 - 0.5 * currentSpeed;
     }
   }, 16);
 
@@ -770,47 +772,35 @@ function init() {
   //     console.error(err);
   //   });
 
-  document.addEventListener("click", async () => {
-    if (synth) {
+  function maybeEnableAudio() {
+    if (audioStarting) {
       return;
     }
 
+    audioStarting = true;
+
     console.log("Init tone", Tone);
 
-    await Tone.start();
-    console.log("audio is ready");
+    Tone.start().then(() => {
+      console.log("audio is ready");
 
-    synth = new Tone.Synth();
-    // .toDestination();
+      osc1 = new Tone.PulseOscillator(101, 0.5);
+      osc1.volume.value = 0.0;
+      osc1.toDestination().start();
 
-    osc1 = new Tone.Oscillator(101, "triangle");
-    osc1.volume.value = 0.0;
+      synth = new Tone.Synth();
+      const reverb2 = new Tone.Reverb(0.6);
+      synth.connect(reverb2);
+      reverb2.toDestination();
+    });
+  }
 
-    osc2 = new Tone.Oscillator(102, "triangle");
-    osc2.volume.value = 0.0;
+  document.addEventListener("click", maybeEnableAudio);
+  document.addEventListener("touchstart", maybeEnableAudio);
 
-    const distortion = new Tone.Distortion(0.1);
-    // const crusher = new Tone.BitCrusher(3);
-    // const filter = new Tone.AutoFilter(4).start();
-    const reverb = new Tone.Reverb(0.2);
-    const reverb2 = new Tone.Reverb(0.6);
-
-    osc1.connect(distortion).start();
-    osc2.connect(distortion).start();
-    synth.connect(reverb2);
-
-    distortion.connect(reverb);
-    // reverb.connect(crusher)
-
-    reverb.toDestination();
-    reverb2.toDestination();
-
-    // mix1.connect(crusher).toDestination().start()
-
-    // osc2.connect(reverb.toDestination());
-    // reverb.connect(Tone.Destination)
-    // reverb.toDestination().start()
-  });
+  document
+    .getElementById("audiobutton")
+    .addEventListener("click", () => maybeEnableAudio());
 
   setTimeout(closeFullscreenPopup, 5000);
 }
