@@ -89,20 +89,30 @@ function connectWs() {
         }
       } else if (data.type === "enter-zone") {
         console.log("enter zone event", data);
+
         if (data.zone === "checkpoint") {
-          if (synth) {
-            const now = Tone.now();
-            synth.triggerAttackRelease(
-              data.zonedata?.note || "E4",
-              "256n",
-              now
-            );
+          if (data.playerid === myId) {
+            if (synth) {
+              const now = Tone.now();
+              synth.triggerAttackRelease(
+                data.zonedata?.note || "E4",
+                "256n",
+                now
+              );
+            }
           }
         }
+
         if (data.zone === "goal") {
-          if (synth) {
-            const now = Tone.now();
-            synth.triggerAttackRelease(data.zonedata?.note || "E4", "8n", now);
+          if (data.playerid === myId) {
+            if (synth) {
+              const now = Tone.now();
+              synth.triggerAttackRelease(
+                data.zonedata?.note || "E4",
+                "8n",
+                now
+              );
+            }
           }
         }
       } else if (data.type === "leave-zone") {
@@ -121,7 +131,7 @@ function connectWs() {
         const otherpos = [];
         data.players.forEach((p) => {
           if (p.id === myId) {
-            targetSpeed = p.velocity;
+            targetSpeed = p.totalvelocity;
             targetHeat = p.heat;
             currentPosition = p.position;
             overheating = p.overheating;
@@ -132,6 +142,7 @@ function connectWs() {
               document.getElementById("playerindex").textContent =
                 myIndex.toString();
             }
+            // console.log('got my player info', p)
           } else {
             otherpos.push(p.position);
           }

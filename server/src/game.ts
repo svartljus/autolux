@@ -9,7 +9,7 @@ let ledbackgroundbuffer1;
 let ledbackgroundbuffer2;
 let MAX_SPEED_METERS_PER_SECOND = 0.66;
 let LED_PIXELS_PER_METER = 60.0;
-let OVERDRIVE_METERS_PER_SECOND = 1.33;
+let OVERDRIVE_METERS_PER_SECOND = 0.33;
 
 let LEDS_PER_SECOND_MAXSPEED =
   MAX_SPEED_METERS_PER_SECOND * LED_PIXELS_PER_METER;
@@ -99,10 +99,11 @@ function addMulColors(rgb1, rgb2, mul) {
 }
 
 function stepGame(deltaTime) {
-  const velfadeadd = 1.66 * deltaTime;
-  const velfadesub = 1.5 * deltaTime;
+  const velfadeadd = 9.0 * deltaTime;
+  const velfadesub = 6.0 * deltaTime;
   const ovrfadeadd = 0.1 * deltaTime;
   const ovrfadesub = 1.0 * deltaTime;
+  const ovrspeed = 0.1 * deltaTime;
   const heatfadeadd = 0.15 * deltaTime;
   const heatfadesub = 0.25 * deltaTime;
 
@@ -142,31 +143,36 @@ function stepGame(deltaTime) {
     while (pl.position < 0) {
       pl.position += ledcount;
     }
-    pl.velocity -= velfadesub;
+
+    // if (pl.throttle > 50) {
+    //   pl.heat += (heatfadeadd * (pl.throttle - 50)) / 100;
+    //   if (pl.heat > 1.0) {
+    //     pl.heat = 1.0;
+    //   }
+    // } else {
+    //   pl.heat -= (heatfadesub * (50 - pl.throttle)) / 100;
+    //   if (pl.heat < 0.0) {
+    //     pl.heat = 0.0;
+    //   }
+    // }
+    // pl.velocity -= velfadesub;
+    // pl.velocity += (velfadeadd * pl.throttle) / 100;
+
+    pl.velocity += (pl.throttle / 100.0 - pl.velocity) * 0.33;
     if (pl.velocity < 0.0) {
       pl.velocity = 0.0;
     }
-    if (pl.throttle < 10) {
-      pl.overdrive -= ovrfadesub;
-      if (pl.overdrive < 0.0) {
-        pl.overdrive = 0.0;
-      }
-    }
-    if (pl.throttle > 50) {
-      pl.heat += (heatfadeadd * (pl.throttle - 50)) / 100;
-      if (pl.heat > 1.0) {
-        pl.heat = 1.0;
-      }
-    } else {
-      pl.heat -= (heatfadesub * (50 - pl.throttle)) / 100;
-      if (pl.heat < 0.0) {
-        pl.heat = 0.0;
-      }
-    }
-    pl.velocity += (velfadeadd * pl.throttle) / 100;
-    pl.overdrive += (ovrfadeadd * pl.throttle) / 100;
     if (pl.velocity > 1.0) {
       pl.velocity = 1.0;
+    }
+
+    pl.overdrive += (ovrspeed * (pl.velocity - 0.5));
+    // pl.overdrive += (ovrfadeadd * pl.throttle) / 100;
+    // if (pl.throttle < 10) {
+    //   pl.overdrive -= ovrfadesub;
+    // }
+    if (pl.overdrive < 0.0) {
+      pl.overdrive = 0.0;
     }
     if (pl.overdrive > 1.0) {
       pl.overdrive = 1.0;
@@ -315,11 +321,7 @@ function renderPlayerBuffer() {
       playermul *= 0.2;
     }
     if (l >= 0 && l < ledcount) {
-      output[l] = addMulColors(
-        output[l],
-        pl.ledcolor,
-        playermul
-      );
+      output[l] = addMulColors(output[l], pl.ledcolor, playermul);
     }
     for (var f = 1; f < fadeleds; f++) {
       let mul = 1.0 - f / fadeleds;
@@ -331,11 +333,7 @@ function renderPlayerBuffer() {
         l2 -= ledcount;
       }
       if (l2 >= 0 && l2 < ledcount) {
-        output[l2] = addMulColors(
-          output[l2],
-          pl.ledcolor,
-          playermul * mul
-        );
+        output[l2] = addMulColors(output[l2], pl.ledcolor, playermul * mul);
       }
     }
   }
@@ -440,7 +438,8 @@ export function touchPlayer(id: string): number {
   const velocity = 10 + 300 * Math.random();
   const index = gamestate.players.length + 1;
   const ledcolor = PLAYER_LED_COLORS[index % PLAYER_LED_COLORS.length];
-  const displaycolor = PLAYER_DISPLAY_COLORS[index % PLAYER_DISPLAY_COLORS.length];
+  const displaycolor =
+    PLAYER_DISPLAY_COLORS[index % PLAYER_DISPLAY_COLORS.length];
   const newplayer: PlayerState = {
     index,
     id,
@@ -580,10 +579,10 @@ export function initGame() {
       players: gamestate.players.map((p) => {
         return {
           id: p.id,
-          index: p.index,
+          index: p.index + 1,
           position: p.position,
-          velocity: p.velocity * MAX_SPEED_METERS_PER_SECOND,
-          overdrive: p.overdrive * OVERDRIVE_METERS_PER_SECOND,
+          velocity: p.velocity,
+          overdrive: p.overdrive,
           heat: p.heat,
           totalvelocity:
             p.velocity * MAX_SPEED_METERS_PER_SECOND +
