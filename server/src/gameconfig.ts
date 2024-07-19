@@ -55,87 +55,134 @@ export const LEVEL = {
     {
       id: "start",
       type: "start",
-      startPercent: 0.0,
-      lengthPercent: 5.0,
+      startPercent: 1.0,
+      lengthPercent: 3.0,
       featherPercent: 3.0,
     },
 
+
+    // {
+    //   id: "fastzone",
+    //   type: "speed",
+    //   startPercent: 10.0,
+    //   lengthPercent: 10.0,
+    //   featherPercent: 3.0,
+    //   speedMultiplier: 2.0
+    // },
+
+    {
+      id: "slow1",
+      type: "speed",
+      startPercent: 3.0,
+      lengthPercent: 15.0,
+      featherPercent: 3.0,
+      speedMultiplier: 0.4
+    },
+
+    {
+      id: "slow2",
+      type: "speed",
+      startPercent: 23.0,
+      lengthPercent: 5.0,
+      featherPercent: 3.0,
+      speedMultiplier: 0.8
+    },
+
+    // {
+    //   id: "fastzone",
+    //   type: "speed",
+    //   startPercent: 4.0,
+    //   lengthPercent: 20.0,
+    //   featherPercent: 3.0,
+    //   speedMultiplier: 2.0
+    // },
+
+    {
+      id: "slow2",
+      type: "speed",
+      startPercent: 35.0,
+      lengthPercent: 5.0,
+      featherPercent: 3.0,
+      speedMultiplier: 0.66
+    },
 
     {
       id: "fastzone",
       type: "speed",
-      startPercent: 10.0,
+      startPercent: 50.0,
       lengthPercent: 10.0,
       featherPercent: 3.0,
-      speedMultiplier: 2.0
+      speedMultiplier: 1.66
     },
 
-    {
-      id: "slowzone",
-      type: "speed",
-      startPercent: 60.0,
-      lengthPercent: 5.0,
-      featherPercent: 3.0,
-      speedMultiplier: 0.66
-    },
-    {
-      id: "slowzone",
-      type: "speed",
-      startPercent: 65.0,
-      lengthPercent: 10.0,
-      featherPercent: 3.0,
-      speedMultiplier: 0.33
-    },
-    {
-      id: "slowzone",
-      type: "speed",
-      startPercent: 75.0,
-      lengthPercent: 5.0,
-      featherPercent: 3.0,
-      speedMultiplier: 0.66
-    },
+    // {
+    //   id: "fastzone",
+    //   type: "speed",
+    //   startPercent: 70.0,
+    //   lengthPercent: 15.0,
+    //   featherPercent: 3.0,
+    //   speedMultiplier: 2.0
+    // },
 
 
-    {
-      type: "checkpoint",
-      startPercent: 30.0,
-      lengthPercent: 1.0,
-      featherPercent: 0.0,
-      note: 'C4',
-      color: [100,150,200],
-    },
-    {
-      type: "checkpoint",
-      startPercent: 35.0,
-      lengthPercent: 1.0,
-      featherPercent: 0.0,
-      note: 'E4',
-      color: [100,150,200],
-    },
-    {
-      type: "checkpoint",
-      startPercent: 40.0,
-      lengthPercent: 1.0,
-      featherPercent: 0.0,
-      note: 'G4',
-      color: [100,150,200],
-    },
-    {
-      type: "checkpoint",
-      startPercent: 45.0,
-      lengthPercent: 1.0,
-      featherPercent: 0.0,
-      note: 'B4',
-      color: [100,150,200],
-    },
-    {
-      type: "checkpoint",
-      startPercent: 80.0,
-      lengthPercent: 1.0,
-      featherPercent: 0.0,
-      note: 'C5',
-      color: [100,150,200],
-    },
+    // {
+    //   id: "slowzone",
+    //   type: "speed",
+    //   startPercent: 65.0,
+    //   lengthPercent: 10.0,
+    //   featherPercent: 3.0,
+    //   speedMultiplier: 0.33
+    // },
+    // {
+    //   id: "slowzone",
+    //   type: "speed",
+    //   startPercent: 75.0,
+    //   lengthPercent: 5.0,
+    //   featherPercent: 3.0,
+    //   speedMultiplier: 0.66
+    // },
+
+
+    // {
+    //   type: "checkpoint",
+    //   startPercent: 30.0,
+    //   lengthPercent: 1.0,
+    //   featherPercent: 0.0,
+    //   note: 'C4',
+    //   color: [100,150,200],
+    // },
+    // {
+    //   type: "checkpoint",
+    //   startPercent: 35.0,
+    //   lengthPercent: 1.0,
+    //   featherPercent: 0.0,
+    //   note: 'E4',
+    //   color: [100,150,200],
+    // },
+    // {
+    //   type: "checkpoint",
+    //   startPercent: 40.0,
+    //   lengthPercent: 1.0,
+    //   featherPercent: 0.0,
+    //   note: 'G4',
+    //   color: [100,150,200],
+    // },
+    // {
+    //   type: "checkpoint",
+    //   startPercent: 45.0,
+    //   lengthPercent: 1.0,
+    //   featherPercent: 0.0,
+    //   note: 'B4',
+    //   color: [100,150,200],
+    // },
+    // {
+    //   type: "checkpoint",
+    //   startPercent: 80.0,
+    //   lengthPercent: 1.0,
+    //   featherPercent: 0.0,
+    //   note: 'C5',
+    //   color: [100,150,200],
+    // },
     // {
     //   type: "checkpoint",
     //   startPercent: 80.0,
