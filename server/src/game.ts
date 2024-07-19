@@ -9,7 +9,7 @@ let ledbackgroundbuffer1;
 let ledbackgroundbuffer2;
 let MAX_SPEED_METERS_PER_SECOND = 0.66;
 let LED_PIXELS_PER_METER = 60.0;
-let OVERDRIVE_METERS_PER_SECOND = 0.33;
+let OVERDRIVE_METERS_PER_SECOND = 0.66;
 
 let LEDS_PER_SECOND_MAXSPEED =
   MAX_SPEED_METERS_PER_SECOND * LED_PIXELS_PER_METER;
@@ -104,8 +104,8 @@ function stepGame(deltaTime) {
   const ovrfadeadd = 0.1 * deltaTime;
   const ovrfadesub = 1.0 * deltaTime;
   const ovrspeed = 0.1 * deltaTime;
-  const heatfadeadd = 0.15 * deltaTime;
-  const heatfadesub = 0.25 * deltaTime;
+  const heatfadeadd = 0.1 * deltaTime;
+  const heatfadesub = 0.2 * deltaTime;
 
   gamestate.blinkphase += deltaTime;
   while (gamestate.blinkphase > 1.0) {
@@ -144,19 +144,17 @@ function stepGame(deltaTime) {
       pl.position += ledcount;
     }
 
-    // if (pl.throttle > 50) {
-    //   pl.heat += (heatfadeadd * (pl.throttle - 50)) / 100;
-    //   if (pl.heat > 1.0) {
-    //     pl.heat = 1.0;
-    //   }
-    // } else {
-    //   pl.heat -= (heatfadesub * (50 - pl.throttle)) / 100;
-    //   if (pl.heat < 0.0) {
-    //     pl.heat = 0.0;
-    //   }
-    // }
-    // pl.velocity -= velfadesub;
-    // pl.velocity += (velfadeadd * pl.throttle) / 100;
+    if (pl.throttle > 66) {
+      pl.heat += (heatfadeadd * (pl.throttle - 66)) / 100;
+      if (pl.heat > 1.0) {
+        pl.heat = 1.0;
+      }
+    } else {
+      pl.heat -= heatfadesub;
+      if (pl.heat < 0.0) {
+        pl.heat = 0.0;
+      }
+    }
 
     pl.velocity += (pl.throttle / 100.0 - pl.velocity) * 0.33;
     if (pl.velocity < 0.0) {
@@ -166,7 +164,10 @@ function stepGame(deltaTime) {
       pl.velocity = 1.0;
     }
 
-    pl.overdrive += (ovrspeed * (pl.velocity - 0.5));
+    pl.overdrive += ovrspeed * (pl.velocity - 0.75);
+
+    // pl.heat = Math.min(1.0, Math.max(0, (pl.overdrive - 0.01) * 4.0));
+
     // pl.overdrive += (ovrfadeadd * pl.throttle) / 100;
     // if (pl.throttle < 10) {
     //   pl.overdrive -= ovrfadesub;
@@ -178,7 +179,7 @@ function stepGame(deltaTime) {
       pl.overdrive = 1.0;
     }
 
-    pl.overheating = pl.heat > 0.5;
+    pl.overheating = pl.heat > 0.75;
 
     pl.zones = [];
     for (const z of level.zones) {
@@ -572,7 +573,6 @@ export function initGame() {
 
   setInterval(() => {
     // console.log("gamestate", gamestate);
-    // const osc = new Tone.Oscillator(440, "sine").toDestination().start();
     const update = {
       type: "player-update",
       tracklength: ledcount,
@@ -584,9 +584,7 @@ export function initGame() {
           velocity: p.velocity,
           overdrive: p.overdrive,
           heat: p.heat,
-          totalvelocity:
-            p.velocity * MAX_SPEED_METERS_PER_SECOND +
-            p.overdrive * OVERDRIVE_METERS_PER_SECOND,
+          totalvelocity: (p.velocity + p.overdrive) / 2.0,
           inactivity: Date.now() - p.lastseen,
           overheating: p.overheating,
         };

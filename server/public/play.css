@@ -112,7 +112,7 @@ button#throttlebutton {
 .bar {
   flex: 1;
   padding: 2px;
-  background-color: #111;
+  background-color: #222;
   border-radius: 10px;
   position: relative;
 }

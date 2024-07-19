@@ -13,8 +13,8 @@ export function fixColorDisplayGamma(color) {
   }
 
   return [
-    Math.min(255, color[0] * 5),
-    Math.min(255, color[1] * 5),
-    Math.min(255, color[2] * 5),
+    Math.min(255, color[0] * 3),
+    Math.min(255, color[1] * 3),
+    Math.min(255, color[2] * 3),
   ];
 }

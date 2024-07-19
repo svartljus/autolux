@@ -108,9 +108,14 @@ function connectWs() {
             if (synth) {
               const now = Tone.now();
               synth.triggerAttackRelease(
-                data.zonedata?.note || "E4",
+                data.zonedata?.note || "E5",
                 "8n",
                 now
+              );
+              synth.triggerAttackRelease(
+                data.zonedata?.note || "E6",
+                "8n",
+                now+0.1
               );
             }
           }
@@ -712,7 +717,7 @@ function init() {
     if (osc1 && osc2) {
       osc1.volume.value = Math.max(
         -24,
-        Math.min(1.0, -24.0 + currentSpeed * 20)
+        Math.min(1.0, -24.0 + currentSpeed * 18)
       );
       osc1.frequency.value = 100 + currentSpeed * 300;
 
@@ -720,7 +725,7 @@ function init() {
         -24,
         Math.min(1.0, -24.0 + currentSpeed * 20)
       );
-      osc2.frequency.value = 101 + currentSpeed * 290;
+      osc2.frequency.value = 101 + currentSpeed * 190;
     }
   }, 16);
 
@@ -766,20 +771,45 @@ function init() {
   //   });
 
   document.addEventListener("click", async () => {
-    if (!synth) {
-      console.log("Init tone", Tone);
-
-      await Tone.start();
-      console.log("audio is ready");
-
-      synth = new Tone.Synth().toDestination();
-
-      osc1 = new Tone.Oscillator(101, "triangle").toDestination().start();
-      osc1.volume.value = 0.0;
-
-      osc2 = new Tone.Oscillator(102, "triangle").toDestination().start();
-      osc2.volume.value = 0.0;
+    if (synth) {
+      return;
     }
+
+    console.log("Init tone", Tone);
+
+    await Tone.start();
+    console.log("audio is ready");
+
+    synth = new Tone.Synth();
+    // .toDestination();
+
+    osc1 = new Tone.Oscillator(101, "triangle");
+    osc1.volume.value = 0.0;
+
+    osc2 = new Tone.Oscillator(102, "triangle");
+    osc2.volume.value = 0.0;
+
+    const distortion = new Tone.Distortion(0.1);
+    // const crusher = new Tone.BitCrusher(3);
+    // const filter = new Tone.AutoFilter(4).start();
+    const reverb = new Tone.Reverb(0.2);
+    const reverb2 = new Tone.Reverb(0.6);
+
+    osc1.connect(distortion).start();
+    osc2.connect(distortion).start();
+    synth.connect(reverb2);
+
+    distortion.connect(reverb);
+    // reverb.connect(crusher)
+
+    reverb.toDestination();
+    reverb2.toDestination();
+
+    // mix1.connect(crusher).toDestination().start()
+
+    // osc2.connect(reverb.toDestination());
+    // reverb.connect(Tone.Destination)
+    // reverb.toDestination().start()
   });
 
   setTimeout(closeFullscreenPopup, 5000);
